@@ -3,6 +3,8 @@ package jp.ac.st.asojuku.yolp001;
 import jp.co.yahoo.android.maps.GeoPoint;
 import jp.co.yahoo.android.maps.MapController;
 import jp.co.yahoo.android.maps.MapView;
+import jp.co.yahoo.android.maps.weather.WeatherOverlay;
+import jp.co.yahoo.android.maps.weather.WeatherOverlay.WeatherOverlayListener;
 import android.app.Activity;
 import android.content.Context;
 import android.location.Criteria;
@@ -12,52 +14,14 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.Menu;
 
-public class MainActivity extends Activity implements LocationListener {
+public class MainActivity extends Activity implements LocationListener, WeatherOverlayListener {
 
 	LocationManager mLocationManager = null;
 	MapView mMapView = null;
 	int lastLatitude = 0;
 	int lastLongitude = 0;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-	}
-
-	@Override
-	protected void onResume() {
-		// TODO 自動生成されたメソッド・スタブ
-		super.onResume();
-
-		mMapView = new MapView(this,"dj0zaiZpPTdhZ1hERlB4QU01ViZzPWNvbnN1bWVyc2VjcmV0Jng9Mjgdj0zaiZpPTdhZ1hERlB4QU01ViZzPWNvbnN1bWVyc2VjcmV0Jng9Mjg-");
-		mMapView.setBuiltInZoomControls(true);
-		mMapView.setScalebar(true);
-
-		double lat = 35.658516;
-		double lon = 139.701773;
-		GeoPoint gp = new GeoPoint((int)(lat * 1000000), (int)(lon * 1000000));
-		MapController c = mMapView.getMapController();
-
-		c.setCenter(gp);
-		c.setZoom(3);
-		setContentView(mMapView);
-
-		mLocationManager =
-				(LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		Criteria criteria = new Criteria();
-		criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-		criteria.setPowerRequirement(Criteria.POWER_LOW);
-		String provider = mLocationManager.getBestProvider(criteria,  true);
-		mLocationManager.requestLocationUpdates(provider, 0, 0, this);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+	WeatherOverlay mWeatherOverlay = null;
 
 	@Override
 	public void onLocationChanged(Location location) {
@@ -90,5 +54,62 @@ public class MainActivity extends Activity implements LocationListener {
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 
+	}
+
+	@Override
+	public void errorUpdateWeather(WeatherOverlay arg0, int arg1) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	@Override
+	public void finishUpdateWeather(WeatherOverlay arg0) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+	}
+
+	@Override
+	protected void onResume() {
+		// TODO 自動生成されたメソッド・スタブ
+		super.onResume();
+
+		mMapView = new MapView(this,"dj0zaiZpPTdhZ1hERlB4QU01ViZzPWNvbnN1bWVyc2VjcmV0Jng9Mjg-");
+		mMapView.setBuiltInZoomControls(true);
+		mMapView.setScalebar(true);
+
+		double lat = 35.658516;
+		double lon = 139.701773;
+		GeoPoint gp = new GeoPoint((int)(lat * 1000000), (int)(lon * 1000000));
+		MapController c = mMapView.getMapController();
+
+		c.setCenter(gp);
+		c.setZoom(3);
+		setContentView(mMapView);
+
+		mLocationManager =
+				(LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+		criteria.setPowerRequirement(Criteria.POWER_LOW);
+		String provider = mLocationManager.getBestProvider(criteria,  true);
+		mLocationManager.requestLocationUpdates(provider, 0, 0, this);
+
+		mWeatherOverlay = new WeatherOverlay(this);
+		mWeatherOverlay.setWeatherOverlayListener(this);
+		mWeatherOverlay.startAutoUpdate(1);
+		mMapView.getOverlays().add(mWeatherOverlay);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
 	}
 }
